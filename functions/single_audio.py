@@ -1,11 +1,12 @@
 # functions/single_audio.py
 
 import yt_dlp
+from functions.output_manager import get_output_path
 
 def download_single_audio(url):
     ydl_opts = {
         'format': 'bestaudio/best',
-        'outtmpl': '%(title)s.%(ext)s',
+        'outtmpl': get_output_path("audio"),
         'postprocessors': [{
             'key': 'FFmpegExtractAudio',
             'preferredcodec': 'mp3',

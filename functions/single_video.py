@@ -1,11 +1,12 @@
 # functions/single_video.py
 
 import yt_dlp
+from functions.output_manager import get_output_path
 
 def download_single_video(url):
     ydl_opts = {
         'format': 'bestvideo[height<=720]+bestaudio/best[height<=720]',
-        'outtmpl': '%(title)s.%(ext)s',
+        'outtmpl': get_output_path("single_video"),
     }
 
     try:

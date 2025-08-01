@@ -1,27 +1,30 @@
-# functions/playlist_download.py
-
+from functions.output_manager import get_output_path
 import yt_dlp
 
 def download_playlist(url, download_type):
-    if download_type == 'video':
+    try:
+        # Fetch info first to get playlist title
+        with yt_dlp.YoutubeDL({'quiet': True}) as ydl:
+            info = ydl.extract_info(url, download=False)
+            playlist_title = info.get("title", "Unknown_Playlist")
+
+        mode = "playlist_video" if download_type == 'video' else "playlist_audio"
         ydl_opts = {
-            'format': 'bestvideo[height<=720]+bestaudio/best[height<=720]',
-            'outtmpl': '%(playlist_title)s/%(playlist_index)s - %(title)s.%(ext)s',
+            'format': 'bestvideo[height<=720]+bestaudio/best[height<=720]' if download_type == 'video' else 'bestaudio/best',
+            'outtmpl': get_output_path(mode, playlist_title),
         }
-    elif download_type == 'audio':
-        ydl_opts = {
-            'format': 'bestaudio/best',
-            'outtmpl': '%(playlist_title)s/%(playlist_index)s - %(title)s.%(ext)s',
-            'postprocessors': [{
+
+        if download_type == 'audio':
+            ydl_opts['postprocessors'] = [{
                 'key': 'FFmpegExtractAudio',
                 'preferredcodec': 'mp3',
                 'preferredquality': '192',
-            }],
-        }
+            }]
 
-    try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.download([url])
+
         print(f"Playlist {download_type} download completed!")
+
     except Exception as e:
         print(f"Error occurred: {e}")
